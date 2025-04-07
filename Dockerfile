@@ -9,6 +9,11 @@ ENV PYTHONUNBUFFERED 1
 # Set work directory
 WORKDIR /code
 
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y gcc libpq-dev build-essential \
+    && apt-get clean
+
 # Install dependencies
 COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt

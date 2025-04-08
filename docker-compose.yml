@@ -13,8 +13,6 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      POSTGRES_USER: Autoestopistamanco
-      POSTGRES_PASSWORD: Fib49#7778742049
-      POSTGRES_DB: customers
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
 volumes:
   postgres_data:

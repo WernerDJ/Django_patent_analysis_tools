@@ -1,0 +1,27 @@
+<html>
+<head>
+  <title>Data Analysis</title>
+</head>
+<body>
+  <h1>Upload Excel File and Set Filters</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Analyze">
+  </form>
+
+  {% if top_countries_img %}
+    <h2>Top 10 Countries</h2>
+    <img src="/{{ top_countries_img }}" alt="Top 10 Countries">
+  {% endif %}
+
+  {% if top_ipcs_img %}
+    <h2>Top 10 IPCs</h2>
+    <img src="/{{ top_ipcs_img }}" alt="Top 10 IPCs">
+  {% endif %}
+
+  {% if error %}
+    <p style="color: red;">{{ error }}</p>
+  {% endif %}
+</body>
+</html>

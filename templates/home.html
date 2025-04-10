@@ -1,5 +1,16 @@
 {% extends "_base.html" %}
+
 {% block title %}Home{% endblock title %}
+
 {% block content %}
   <h1>Patent Analysis Tools</h1>
+  {% if user.is_authenticated %} 
+    <p>Hi {{ user.email }}!</p>
+    <!-- There is an error when logging out that seems related to the log in having its own template and the logout not -->
+    <p><a href="{% url 'logout' %}">Log Out</a></p>
+   {% else %}
+    <p>You are not logged in</p>
+    <a href="{% url 'login' %}">Log In</a>
+    <a href="{% url 'signup' %}">Sign Up</a>
+  {% endif %}
 {% endblock content %}

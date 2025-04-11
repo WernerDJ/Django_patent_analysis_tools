@@ -1,5 +1,8 @@
 from django.shortcuts import render
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView
+from django.views.generic import FormView
+from django.core.cache import cache
+from django.http import JsonResponse
 from .forms import ExcelUploadForm
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -15,6 +18,9 @@ from pages.analytic_functions import (
 
 class HomePageView(TemplateView):
     template_name = "home.html"
+
+class AboutPageView(TemplateView):
+    template_name = "about.html"
 
 
 class AnalizarDatosView(FormView):

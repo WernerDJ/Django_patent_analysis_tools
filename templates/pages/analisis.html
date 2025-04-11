@@ -1,8 +1,8 @@
-<html>
-<head>
-  <title>Data Analysis</title>
-</head>
-<body>
+{% extends "_base.html" %}
+{% load static %}
+{% block title %}Patent Analysis tools{% endblock title %}
+
+{% block content %}
   <h1>Upload Excel File and Set Filters</h1>
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
@@ -23,5 +23,4 @@
   {% if error %}
     <p style="color: red;">{{ error }}</p>
   {% endif %}
-</body>
-</html>
+{% endblock content %}

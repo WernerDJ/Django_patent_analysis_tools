@@ -6,5 +6,9 @@ pandas
 matplotlib
 regex
 xlrd
+numpy
+datetime
 django-crispy-forms==1.14.0
 crispy-bootstrap5==0.6
+wordcloud
+nltk

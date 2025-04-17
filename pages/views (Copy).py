@@ -39,35 +39,11 @@ class AnalizarDatosView(FormView):
             plt_countries.savefig(countries_img_path)
             plt_countries.close()
 
-            # Plot wordcloud nouns
-            plt_wcld_nouns = analyzer.generate_wordclouds_by_pos(pospeech = 'Nouns')
-            wcld_nouns_img_path = os.path.join(base_path, 'wcld_nouns.png')
-            plt_wcld_nouns.savefig(wcld_nouns_img_path)
-            plt_wcld_nouns.close()
-
-            # Plot wordcloud verbs
-            plt_wcld_verbs = analyzer.generate_wordclouds_by_pos(pospeech = 'Verbs')
-            wcld_verbs_img_path = os.path.join(base_path, 'wcld_verbs.png')
-            plt_wcld_verbs.savefig(wcld_verbs_img_path)
-            plt_wcld_verbs.close()
-
-            # Plot wordcloud adjectives
-            plt_wcld_adjectives = analyzer.generate_wordclouds_by_pos(pospeech = 'Adjectives')
-            wcld_adjectives_img_path = os.path.join(base_path, 'wcld_adjectives.png')
-            plt_wcld_adjectives.savefig(wcld_adjectives_img_path)
-            plt_wcld_adjectives.close()            
-
             # Plot top IPCs
             plt_ipcs = analyzer.plot_top_ipcs()
             ipcs_img_path = os.path.join(base_path, "top_ipcs.png")
             plt_ipcs.savefig(ipcs_img_path)
             plt_ipcs.close()
-
-            # Show the boring table with IPC Groups and their definitions
-            plt_defs = analyzer.get_top_ipcs_with_titles()
-            defs_img_path = os.path.join(base_path, "top_ipcs_defs.png")
-            plt_defs.savefig(defs_img_path)
-            plt_defs.close()
 
             # Plot parallel coordinates
             plt_parallel = analyzer.plot_parallel_coordinates(top_n=5, year_range=range(start_year, end_year + 1))
@@ -78,11 +54,7 @@ class AnalizarDatosView(FormView):
             extra_context = {
                 'analysis1': "<p>Analysis complete. See the graphs below.</p>",
                 'top_countries_img': countries_img_path,
-                'wcld_nouns_img':wcld_nouns_img_path,
-                'wcld_verbs_img':wcld_verbs_img_path,
-                'wcld_adjectives_img':wcld_adjectives_img_path,
                 'top_ipcs_img': ipcs_img_path,
-                'top_ipcs_defs_img':defs_img_path,
                 'parallel_img': parallel_img_path,
             }
         except Exception as e:

@@ -28,18 +28,18 @@
             <a class="nav-link" href="{% url 'about' %}">About</a>
           </li>   
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'analisis' %}">Analisis de datos</a>
+            <a class="nav-link" href="{% url 'analisis' %}">Data Analysis</a>
           </li>
           {% if user.is_authenticated %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout' %}">Log Out</a>
+            <a class="nav-link" href="{% url 'account_logout' %}">Log Out</a>
           </li>
           {% else %}
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'login' %}">Log In</a>
+            <a class="nav-link" href="{% url 'account_login' %}">Log In</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
+            <a class="nav-link" href="{% url 'account_signup' %}">Sign Up</a>
           </li>
           {% endif %}
         </ul>

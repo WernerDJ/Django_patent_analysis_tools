@@ -9,31 +9,10 @@
     {{ form.as_p }}
     <input type="submit" value="Analyze">
   </form>
-
-  {% if top_countries_img %}
-    <h2>Top 10 Countries</h2>
-    <img src="/{{ top_countries_img }}" alt="Top 10 Countries">
-  {% endif %}
   <br>
-  <br>
-  <br>
-  {% if wcld_nouns_img %}
-    <h2>Abstracts most frequent nouns</h2>
-    <img src="/{{ wcld_nouns_img }}" alt="Wordcloud: nouns">
-  {% endif %}
-  <br>
-  <br>
-    {% if wcld_verbs_img %}
-    <h2>Abstracts most frequent verbs</h2>
-    <img src="/{{ wcld_verbs_img }}" alt="Wordcloud: verbs">
-    {% endif %}
-  <br>
-  <br>
-    {% if wcld_adjectives_img %}
-    <h2>Abstracts most frequent adjectives</h2>
-    <img src="/{{ wcld_adjectives_img }}" alt="Wordcloud: adjectives">
-    {% endif %}
-  <br>
+    <p>
+      Be patient, language processing demands a lot of processor power, so it may take from a few seconds to minutes for the results to appear
+    </p>  
   <br>
   {% if top_ipcs_img %}
     <h2>Top 10 IPCs</h2>
@@ -51,6 +30,24 @@
     <h2>Parallel Coordinates Plot</h2>
     <img src="/{{ parallel_img }}" alt="Parallel Coordinates Plot">
   {% endif %}
+    <br>
+  {% if wcld_nouns_img %}
+    <h2>Abstracts most frequent nouns</h2>
+    <img src="/{{ wcld_nouns_img }}" alt="Wordcloud: nouns">
+  {% endif %}
+  <br>
+  <br>
+    {% if wcld_verbs_img %}
+    <h2>Abstracts most frequent verbs</h2>
+    <img src="/{{ wcld_verbs_img }}" alt="Wordcloud: verbs">
+    {% endif %}
+  <br>
+  <br>
+    {% if wcld_adjectives_img %}
+    <h2>Abstracts most frequent adjectives</h2>
+    <img src="/{{ wcld_adjectives_img }}" alt="Wordcloud: adjectives">
+    {% endif %}
+  <br>
   
   {% if error %}
     <p style="color: red;">{{ error }}</p>

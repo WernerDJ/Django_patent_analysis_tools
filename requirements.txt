@@ -13,3 +13,5 @@ crispy-bootstrap5==0.6
 django-allauth==0.50.0
 wordcloud
 nltk
+networkx
+

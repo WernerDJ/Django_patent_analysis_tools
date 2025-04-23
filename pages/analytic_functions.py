@@ -10,15 +10,22 @@ from collections import Counter
 import numpy as np
 from matplotlib.path import Path
 import matplotlib.patches as patches
-from datetime import datetime  #Added import
+from datetime import datetime  
 import os
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk import pos_tag
 from wordcloud import WordCloud
+import networkx as nx
+import io
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+
+#Import English stopwords from the nltk repository downloaded to the hard drive
 nltk.data.path.append("/usr/share/nltk_data")
 
+#Divide the word tokens into the three main syntactic groups
 pos_groups = {
     'Nouns': ['NN', 'NNS', 'NNP', 'NNPS'],
     'Verbs': ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ'],
@@ -57,12 +64,318 @@ class Patent_Analysis:
         # Plot
         plt.figure(figsize=(10, 6))
         top_countries.plot(kind='bar', color='skyblue')
-        plt.title("Top 10 Most Frequent Countries (Excluding EP and WO)")
+        plt.title("Top 10 Most Frequent Publication Countries (Excluding EP and WO)")
         plt.xlabel("Country")
         plt.ylabel("Number of Publications")
         plt.grid(axis='y', linestyle='--', alpha=0.7)
         plt.tight_layout()
         return plt
+ 
+    def extract_priority_info(self, priority_data):
+        """Extract the earliest priority year and corresponding country from priority data."""
+        if pd.isna(priority_data):
+            return None, None
+
+        earliest_year = None
+        earliest_country = None
+        entries = priority_data.split(';')
+
+        for entry in entries:
+            entry = entry.strip()
+            match = re.search(r'(?:\S+\s+)?(\d{2}\.\d{2}\.(\d{4}))\s+(\w+)', entry)
+            if match:
+                year = int(match.group(2))
+                country = match.group(3)
+            else:
+                match = re.search(r'(?:\S+\s+)?(\d{4})-(\d{2})-(\d{2})\s+(\w+)', entry)
+                if match:
+                    year = int(match.group(1))
+                    country = match.group(4)
+                else:
+                    match = re.search(r'.*?(\d{4})[-./].*?\s+(\w+)$|.*?(\w+)\s+(\d{4})[-./]', entry)
+                    if match:
+                        if match.group(1) and match.group(2):
+                            year = int(match.group(1))
+                            country = match.group(2)
+                        elif match.group(3) and match.group(4):
+                            country = match.group(3)
+                            year = int(match.group(4))
+                    else:
+                        continue
+
+            if year is not None and (earliest_year is None or year < earliest_year):
+                earliest_year = year
+                earliest_country = country
+
+        return earliest_year, earliest_country
+
+    def prepare_priority_data(self):
+        """Prepare DataFrame with one row per unique patent family, containing earliest year and country."""
+        if self.filtered_data is None or len(self.filtered_data) == 0:
+            raise ValueError("No data available for analysis")
+
+        priority_groups = self.filtered_data.groupby('Priorities Data')
+        priority_info = []
+
+        for _, group in priority_groups:
+            priority_data = group['Priorities Data'].iloc[0]
+            year, country = self.extract_priority_info(priority_data)
+            if year is not None and country is not None:
+                priority_info.append((year, country))
+
+        return pd.DataFrame(priority_info, columns=['Year', 'Country'])
+
+    def plot_priority_countries_bar(self, priority_df):
+        """Plot a bar chart of the Top 10 Priority Countries (deduplicated families)."""
+        top_countries = priority_df['Country'].value_counts().head(10)
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        top_countries.plot(kind='bar', color='skyblue', ax=ax)
+        ax.set_title("Top 10 Priority Countries")
+        ax.set_xlabel("Country")
+        ax.set_ylabel("Number of Priorities")
+        ax.grid(axis='y', linestyle='--', alpha=0.7)
+        fig.tight_layout()
+
+        return fig
+
+    def plot_priority_years_bar(self, priority_df):
+        """Plot a bar chart of frequency of priorities by year (deduplicated families)."""
+        year_counts = priority_df.groupby('Year').size().sort_index()
+
+        fig, ax = plt.subplots(figsize=(12, 6))
+        year_counts.plot(kind='bar', color='lightgreen', ax=ax)
+        ax.set_title("Priority Years Frequency")
+        ax.set_xlabel("Year")
+        ax.set_ylabel("Number of Priorities")
+        ax.grid(axis='y', linestyle='--', alpha=0.7)
+        fig.tight_layout()
+
+        return fig
+
+    
+    def analyze_patent_flow(self, top_n=10):
+        """
+        Analyzes patent flow between origin countries (from Priorities Data) and 
+        destination countries (from Country column).
+        
+        - Extracts priority country codes from Priorities Data
+        - Ignores rows where priority country equals publication country
+        - Ignores rows where publication country or origin country is WO or EP
+        - Creates a flow diagram showing patent movement from top N origin countries to destination countries
+        
+        Args:
+            top_n: Number of top origin countries to include in the visualization (default: 10)
+        """
+        # Create a copy of filtered data to work with
+        df = self.filtered_data.copy()
+        
+        # Extract the origin country (priority country) from Priorities Data column
+        def extract_priority_country(priorities_data):
+            if pd.isna(priorities_data) or priorities_data == '':
+                return None
+            
+            # Extract all country codes from priorities data
+            # Format is typically: "number date country; number date country"
+            matches = re.findall(r'[0-9]+ [0-9\.]+\s+([A-Z]{2})', str(priorities_data))
+            if matches:
+                return matches[0]  # Return the first priority country code
+            return None
+        
+        # Apply the function to extract origin countries
+        df['Origin'] = df['Priorities Data'].apply(extract_priority_country)
+        
+        # Rename the Country column to Destination for clarity
+        df['Destination'] = df['Country']
+        
+        # Filter the data according to requirements
+        filtered_df = df[
+            (df['Origin'].notna()) &  # Priority data is not empty
+            (df['Origin'] != df['Destination']) &  # Priority country is different from publication country
+            (~df['Origin'].isin(['WO', 'EP'])) &  # Origin country is not WO or EP
+            (~df['Destination'].isin(['WO', 'EP']))  # Publication country is not WO or EP
+        ]
+        
+        # Get the top N origin countries by total count
+        origin_total_counts = filtered_df['Origin'].value_counts().head(top_n)
+        top_origins = origin_total_counts.index.tolist()
+        
+        # Filter data to include only top origin countries
+        filtered_df = filtered_df[filtered_df['Origin'].isin(top_origins)]
+        
+        # Count the frequency of each origin-destination pair
+        flow_df = filtered_df.groupby(['Origin', 'Destination']).size().reset_index(name='Count')
+        
+        # Count the total occurrences of each origin and destination country
+        origin_counts = flow_df.groupby('Origin')['Count'].sum().reset_index()
+        dest_counts = flow_df.groupby('Destination')['Count'].sum().reset_index()
+        
+        # Create the visualization
+        figure = self._create_patent_flow_diagram(flow_df, origin_counts, dest_counts, top_n)
+        
+        return figure
+    
+    def _create_patent_flow_diagram(self, flow_df, origin_counts, dest_counts, top_n=10):
+        """
+        Creates a flow diagram showing patent movement from origin to destination countries.
+        
+        Args:
+            flow_df: DataFrame with Origin, Destination, and Count columns
+            origin_counts: DataFrame with count of patents per origin country
+            dest_counts: DataFrame with count of patents per destination country
+            top_n: Number of top origin countries included in the analysis
+        """
+        # Create a figure with a single axis
+        fig, ax = plt.subplots(figsize=(12, 8))
+        
+        # Import required libraries if not already imported
+        from matplotlib.path import Path
+        import matplotlib.patches as patches
+        
+        # Define colors for countries
+        unique_countries = pd.concat([
+            pd.Series(flow_df['Origin'].unique()), 
+            pd.Series(flow_df['Destination'].unique())
+        ]).unique()
+        
+        # Create a color map for countries
+        color_map = {}
+        cmap = plt.cm.tab20
+        for i, country in enumerate(unique_countries):
+            color_map[country] = cmap(i % 20)
+        
+        # Set up the positions for the bars
+        left_x = 0
+        right_x = 1
+        
+        # Sort countries by frequency
+        origin_counts = origin_counts.sort_values('Count', ascending=False)
+        dest_counts = dest_counts.sort_values('Count', ascending=False)
+        
+        # Calculate the total for normalization
+        total_origin = origin_counts['Count'].sum()
+        total_dest = dest_counts['Count'].sum()
+        
+        # Prepare the positions and heights for the origin bars
+        origin_positions = {}
+        y_offset = 0
+        for _, row in origin_counts.iterrows():
+            country = row['Origin']
+            count = row['Count']
+            height = count / total_origin
+            origin_positions[country] = (y_offset, height)
+            
+            # Draw the origin bar
+            ax.add_patch(plt.Rectangle(
+                (left_x, y_offset), 
+                0.1, 
+                height, 
+                color=color_map[country], 
+                alpha=0.8
+            ))
+            
+            # Add label for origin country - moved outside the bar
+            if height > 0.01:
+                ax.text(
+                    left_x - 0.01, 
+                    y_offset + height/2, 
+                    country, 
+                    ha='right', 
+                    va='center', 
+                    fontsize=9
+                )
+                
+            y_offset += height
+        
+        # Prepare the positions and heights for the destination bars
+        dest_positions = {}
+        y_offset = 0
+        for _, row in dest_counts.iterrows():
+            country = row['Destination']
+            count = row['Count']
+            height = count / total_dest
+            dest_positions[country] = (y_offset, height)
+            
+            # Draw the destination bar
+            ax.add_patch(plt.Rectangle(
+                (right_x - 0.1, y_offset), 
+                0.1, 
+                height, 
+                color=color_map[country], 
+                alpha=0.8
+            ))
+            
+            # Add label for destination country - moved outside the bar
+            if height > 0.01:
+                ax.text(
+                    right_x + 0.01, 
+                    y_offset + height/2, 
+                    country, 
+                    ha='left', 
+                    va='center', 
+                    fontsize=9
+                )
+            
+            y_offset += height
+        
+        # Draw the connecting lines between origin and destination
+        for _, row in flow_df.iterrows():
+            origin = row['Origin']
+            dest = row['Destination']
+            count = row['Count']
+            
+            # Get the positions
+            origin_y = origin_positions[origin][0] + origin_positions[origin][1] / 2
+            dest_y = dest_positions[dest][0] + dest_positions[dest][1] / 2
+            
+            # Calculate the line width based on the count
+            line_width = 1 + 5 * (count / flow_df['Count'].max())
+            
+            # Calculate the transparency based on the count
+            alpha = 0.2 + 0.6 * (count / flow_df['Count'].max())
+            
+            # Define the curve using control points
+            verts = [
+                (left_x + 0.1, origin_y),                   # Start point
+                ((left_x + right_x) / 2, origin_y),         # Control point 1
+                ((left_x + right_x) / 2, dest_y),           # Control point 2
+                (right_x - 0.1, dest_y)                     # End point
+            ]
+            codes = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]
+            path = Path(verts, codes)
+            
+            # Draw the path with the appropriate color and width
+            patch = patches.PathPatch(
+                path, 
+                facecolor='none',
+                edgecolor=color_map[origin],
+                linewidth=line_width,
+                alpha=alpha,
+                zorder=1
+            )
+            ax.add_patch(patch)
+        
+        # Adjust the x limits to accommodate the labels
+        ax.set_xlim(left_x - 0.1, right_x + 0.1)
+        ax.set_ylim(0, 1)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        
+        # Add labels for the bars
+        ax.text(left_x + 0.05, 1.05, 'Origin Countries', ha='center', va='bottom', fontsize=12)
+        ax.text(right_x - 0.05, 1.05, 'Destination Countries', ha='center', va='bottom', fontsize=12)
+        
+        # Add title above the graph
+        plt.figtext(0.5, 0.95, f"Destination Countries of the top {top_n} priority countries", 
+                     ha='center', fontsize=14, weight='bold')
+        
+        # Remove axis frame
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+        
+        plt.tight_layout(rect=[0, 0, 1, 0.95])  # Leave space at the top for the title
+        return plt
+
 
     def extract_main_ipc(self, ipc_codes):
         if pd.isna(ipc_codes):
@@ -250,3 +563,108 @@ class Patent_Analysis:
         plt.legend(top_ipcs, title='Main IPC', bbox_to_anchor=(1.05, 1), loc='upper left')
         plt.tight_layout()
         return plt
+
+
+
+
+class Patent_Network:
+    def __init__(self, input_file):
+        self.input_file = input_file
+        self.data = pd.read_excel(input_file, skiprows=5)
+        self.filtered_data = None
+        self.graph = None
+
+    def _clean_applicant_name(self, name):
+        name = name.strip()
+        if name.lower().endswith(', inc') or name.lower().endswith(', inc.'):
+            name = name[:name.lower().rfind(', inc')].strip()
+        return name
+
+    def _has_similar_value(self, applicant, inventors):
+        applicant = applicant.lower().strip()
+        for inventor in inventors:
+            inventor = inventor.lower().strip()
+            if any(applicant[i:i+5] in inventor for i in range(len(applicant) - 4)):
+                return True
+        return False
+
+    def filter_data(self):
+        self.data['Applicants'] = self.data['Applicants'].fillna('').str.split(';')
+        self.data['Inventors'] = self.data['Inventors'].fillna('').str.split(';')
+
+        filtered_rows = []
+        for _, row in self.data.iterrows():
+            applicants = row['Applicants']
+            inventors = row['Inventors']
+
+            if any(applicant.strip().lower() == inventor.strip().lower()
+                   for applicant in applicants for inventor in inventors):
+                continue
+
+            filtered_applicants = [
+                self._clean_applicant_name(applicant)
+                for applicant in applicants
+                if not self._has_similar_value(applicant, inventors)
+            ]
+
+            selected_applicant = filtered_applicants[0] if filtered_applicants else None
+            if selected_applicant:
+                filtered_rows.append({
+                    "Applicant": selected_applicant,
+                    "Inventors": '; '.join(inventors)
+                })
+
+        filtered_df = pd.DataFrame(filtered_rows)
+        
+        # Compact by grouping applicants
+        compacted_data = (
+            filtered_df.groupby(filtered_df['Applicant'].str.lower())
+            .agg({"Inventors": lambda x: '; '.join(set('; '.join(x).split('; ')))})
+            .reset_index()
+        )
+        compacted_data.columns = ['Applicant', 'Inventors']
+        self.filtered_data = compacted_data
+
+    def build_graph(self):
+        if self.filtered_data is None:
+            raise ValueError("Data must be filtered first using filter_data()")
+
+        G = nx.Graph()
+        for i, row1 in self.filtered_data.iterrows():
+            for j, row2 in self.filtered_data.iterrows():
+                if i >= j:
+                    continue
+                inventors1 = set(row1['Inventors'].split('; '))
+                inventors2 = set(row2['Inventors'].split('; '))
+                shared_inventors = inventors1 & inventors2
+                weight = len(shared_inventors)
+                if weight > 0:
+                    G.add_edge(row1['Applicant'], row2['Applicant'], weight=weight)
+        self.graph = G
+    
+    def generate_network_image(self, top_n=10):
+        """Generate a network visualization and return as base64 encoded string"""
+        if self.graph is None:
+            raise ValueError("Graph must be built first using build_graph()")
+
+        degrees = sorted(self.graph.degree, key=lambda x: x[1], reverse=True)[:top_n]
+        top_nodes = [node for node, _ in degrees]
+        H = self.graph.subgraph(top_nodes)
+
+        # Create a Figure and FigureCanvas
+        fig = Figure(figsize=(12, 12))
+        canvas = FigureCanvasAgg(fig)
+        ax = fig.add_subplot(111)
+        
+        pos = nx.circular_layout(H)
+        nx.draw(
+            H, pos, ax=ax, with_labels=True, node_size=2500, font_size=6,
+            font_weight='bold', edge_color='gray', node_color='skyblue'
+        )
+        labels = nx.get_edge_attributes(H, 'weight')
+        nx.draw_networkx_edge_labels(H, pos, edge_labels=labels, font_size=8, ax=ax)
+        ax.set_title(f"Top {top_n} Most Connected Applicants", fontsize=16)
+        
+        # Return the figure object directly
+        return fig
+        

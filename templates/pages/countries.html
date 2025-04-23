@@ -1,0 +1,41 @@
+{% extends "_base.html" %}
+{% load static %}
+{% block title %}Patent Analysis tools{% endblock title %}
+
+{% block content %}
+  <h1>Upload Excel File and Set Filters</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Analyze">
+  </form>
+  <br>
+    <br>
+   {% if priority_years_img %}
+    <h2>Priority filing frequency timeline</h2>
+    <img src="/{{ priority_years_img }}" alt="Priority filing frequency timeline">
+  {% endif %}
+   <br>
+  <br>
+   {% if priority_countries_img %}
+    <h2>Priority Countries ranking</h2>
+    <img src="/{{ priority_countries_img }}" alt="Priority Countries ranking">
+  {% endif %}
+   <br>
+  {% if top_countries_img %}
+    <h2>Top 10 Publication Countries</h2>
+    <img src="/{{ top_countries_img }}" alt="Top 10 Countries">
+  {% endif %}
+  <br>
+  <br>
+  <br>
+  {% if origin_destcountr_img %}
+    <h2>Top 10 Priority Countries, where further patents are filed</h2>
+        <h5> Patent docuents where the priority and destination countries are the same have been excuded from the  statistics, what creates discrepance between the top 10 patenting countries and the graphic bellow</h5>
+    <img src="/{{ origin_destcountr_img }}" alt="Wordcloud: nouns">
+  {% endif %}
+  <br>
+    {% if error %}
+    <p style="color: red;">{{ error }}</p>
+  {% endif %}
+{% endblock content %}

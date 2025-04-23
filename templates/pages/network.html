@@ -1,0 +1,35 @@
+{% extends "_base.html" %}
+{% load static %}
+{% block title %}Patent Analysis tools{% endblock title %}
+
+{% block content %}
+  <h1>Upload Excel File and Set Filters</h1>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Analyze">
+  </form>
+  <br>
+  <br>
+    <p>
+      The graphic bellow shows applicants connected by lines that represent inventors that had worked in both ends of the line. 
+    </p>
+    <p>
+      The numbers above the lines indicate the quantity of inventors shared between applicants. Inventors bring their know how
+    </p>
+    <p>
+      with    them  when    they move  from  an      university    to a  private   company  or between  different    companies.
+    </p>
+    <p>
+      The graphic therefore shows the Technology Transfer Landscape of this technological field.
+    </p>
+    <br>
+  {% if network_img %}
+    <h2>Top 20 Connected Applicants</h2>
+        <img src="/{{ network_img }}" alt="Top 20 Connected Applicants<">
+  {% else %}
+    <p>No network visualization available.</p>
+  {% endif %}
+
+{% endblock content %}
+  

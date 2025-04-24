@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView, FormView
-from .forms import ExcelUploadForm
+from .forms import ExcelUploadForm, SimpleExcelUploadForm
 import os
 from .analytic_functions import Patent_Analysis, Patent_Network
 import uuid
@@ -158,7 +158,7 @@ class AnalizarDatosView(FormView):
 
 class ApplicInventNetworkView(FormView):
     template_name = "pages/network.html"
-    form_class = ExcelUploadForm
+    form_class = SimpleExcelUploadForm
     
     def form_valid(self, form):
         excel_file = form.cleaned_data.get('excel_file')

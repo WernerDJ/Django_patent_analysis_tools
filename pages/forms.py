@@ -19,3 +19,5 @@ class ExcelUploadForm(forms.Form):
         max_value=2030,
         label="End Year"
     )
+class SimpleExcelUploadForm(forms.Form):
+    excel_file = forms.FileField(label="Upload Excel File")

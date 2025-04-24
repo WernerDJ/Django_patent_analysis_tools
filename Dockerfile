@@ -16,6 +16,7 @@ RUN apt-get update \
 # Install dependencies
 COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip show marshmallow
 
 # Download NLTK data (including all required English language-specific models)
 RUN python -m nltk.downloader \

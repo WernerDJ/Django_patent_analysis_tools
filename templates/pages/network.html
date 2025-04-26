@@ -24,9 +24,9 @@
       The graphic therefore shows the Technology Transfer Landscape of this technological field.
     </p>
     <br>
-  {% if network_img %}
-    <h2>Top 20 Connected Applicants</h2>
-        <img src="/{{ network_img }}" alt="Top 20 Connected Applicants<">
+  {% if network_img_url %}
+    <h2> Top 20 Connected Applicants </h2>
+        <img src="{{ network_img_url }}" alt="Top 20 Connected Applicants<">
   {% else %}
     <p>No network visualization available.</p>
   {% endif %}

@@ -9,16 +9,28 @@ ENV PYTHONUNBUFFERED 1
 # Set work directory
 WORKDIR /code
 
-RUN apt-get update \
-    && apt-get install -y gcc libpq-dev build-essential wget ca-certificates \
-    && apt-get clean
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libpq-dev \
+    build-essential \
+    wget \
+    ca-certificates \
+    zlib1g-dev \
+    libjpeg-dev \
+    libpng-dev \
+    libfreetype6 \
+    libfreetype6-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Install dependencies
+# Install Python dependencies
 COPY ./requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip show marshmallow
+RUN pip install --no-cache-dir --force-reinstall pillow
 
-# Download NLTK data (including all required English language-specific models)
+# Download NLTK data (only once Pillow and NLTK are installed)
 RUN python -m nltk.downloader \
         punkt \
         punkt_tab \

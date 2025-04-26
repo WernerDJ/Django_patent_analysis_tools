@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-
+import os
 from environs import Env
 env = Env() 
 env.read_env()
@@ -158,3 +158,6 @@ ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True 
 ACCOUNT_UNIQUE_EMAIL = True 
 DEFAULT_FROM_EMAIL = "juan_d@wp.pl"
+
+MEDIA_URL = "/media/" 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

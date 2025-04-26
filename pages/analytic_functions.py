@@ -25,13 +25,13 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 #Import English stopwords from the nltk repository downloaded to the hard drive
 nltk.data.path.append("/usr/share/nltk_data")
 
+
 #Divide the word tokens into the three main syntactic groups
 pos_groups = {
     'Nouns': ['NN', 'NNS', 'NNP', 'NNPS'],
     'Verbs': ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ'],
     'Adjectives': ['JJ', 'JJR', 'JJS']
 }
-
 
 class Patent_Analysis:
     def __init__(self, filepath):

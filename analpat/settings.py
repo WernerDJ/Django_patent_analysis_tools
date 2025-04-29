@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "crispy_bootstrap5",
     "allauth", 
     "allauth.account",
+    "debug_toolbar",
     # Local
     "accounts.apps.AccountsConfig",  #New custom user
     "pages.apps.PagesConfig",
@@ -62,6 +63,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    'analpat.session_cache_middleware.SessionCacheControlMiddleware', 
 ]
 
 ROOT_URLCONF = "analpat.urls"
@@ -161,3 +164,8 @@ DEFAULT_FROM_EMAIL = "juan_d@wp.pl"
 
 MEDIA_URL = "/media/" 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# django-debug-toolbar
+import socket
+hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
+INTERNAL_IPS = [ip[:-1] + "1" for ip in ips]

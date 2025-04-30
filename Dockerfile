@@ -1,14 +1,11 @@
 # Pull base image
 FROM python:3.12-slim-bullseye
-
 # Set environment variables
 ENV PIP_DISABLE_PIP_VERSION_CHECK 1
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
-
 # Set work directory
 WORKDIR /code
-
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     gcc \
@@ -42,3 +39,7 @@ RUN python -m nltk.downloader \
 
 # Copy project
 COPY . .
+
+# Explicitly copy media and staticfiles directories
+COPY ./media /code/media
+COPY ./staticfiles /code/staticfiles

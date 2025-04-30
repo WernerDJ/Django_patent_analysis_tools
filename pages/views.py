@@ -5,8 +5,10 @@ from .forms import ExcelUploadForm, SimpleExcelUploadForm
 import os
 from .analytic_functions import Patent_Analysis, Patent_Network
 import uuid
+
 import matplotlib
 
+matplotlib.use('Agg')
 matplotlib.rcParams['font.family'] = 'sans-serif'
 matplotlib.rcParams['font.sans-serif'] = ['Arial']
 

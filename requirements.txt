@@ -11,6 +11,9 @@ pillow==9.0.1
 django-debug-toolbar==4.2.0
 whitenoise>=6.1,<7
 gunicorn>=20.1.0,<22.0
+cloudinary
+django-cloudinary-storage
+
 
 wordcloud
 nltk
@@ -21,3 +24,8 @@ regex
 xlrd
 numpy
 datetime
+
+
+
+# Heroku buildpack requirement
+dj-database-url

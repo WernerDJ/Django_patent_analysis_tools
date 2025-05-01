@@ -49,12 +49,20 @@ INSTALLED_APPS = [
     "allauth", 
     "allauth.account",
     "debug_toolbar",
+    'cloudinary',
+    'cloudinary_storage',
     # Local
     "accounts.apps.AccountsConfig",  #New custom user
     "pages.apps.PagesConfig",
 ]
 AUTH_USER_MODEL = "accounts.CustomUser"  #New custom user
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+}
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

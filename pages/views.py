@@ -7,6 +7,8 @@ from .analytic_functions import Patent_Analysis, Patent_Network
 import uuid
 
 import matplotlib
+from cloudinary.uploader import upload
+from cloudinary.utils import cloudinary_url
 
 matplotlib.use('Agg')
 matplotlib.rcParams['font.family'] = 'sans-serif'
@@ -40,15 +42,15 @@ class CountriesView(FormView):
             # Call prepare_priority_data from here
             priority_df = analyzer.prepare_priority_data()
 
-            base_path = os.path.join(settings.MEDIA_ROOT, "images")
-            os.makedirs(base_path, exist_ok=True)
 
             # Plot priority patent filling frequencies timeline
             plt_priority_years = analyzer.plot_priority_years_bar(priority_df)
-            filename = f"frequency_priority_years_{filename_suffix}.png"
-            priority_years_img_path = os.path.join(base_path, filename)
-            plt_priority_years.savefig(priority_years_img_path)
-            priority_years_img_url = settings.MEDIA_URL + f"images/{filename}"
+            filename_priority_years = f"frequency_priority_years_{filename_suffix}.png"
+            temp_priority_years_path = f"/tmp/{filename_priority_years}"
+            plt_priority_years.savefig(temp_priority_years_path) # Save locally first
+            uploaded_priority_years = upload(temp_priority_years_path)
+            priority_years_img_url = uploaded_priority_years['secure_url']
+            os.remove(temp_priority_years_path)
 
             '''
             priority_years_img_path = os.path.join(base_path, f"frequency_priority_years_{filename_suffix}.png")
@@ -57,24 +59,31 @@ class CountriesView(FormView):
 
             # Plot top priority countries
             plt_priority_countries = analyzer.plot_priority_countries_bar(priority_df)
-            filename = f"frequency_priority_countries_{filename_suffix}.png"
-            priority_countries_img_path = os.path.join(base_path, filename)
-            plt_priority_countries.savefig(priority_countries_img_path)
-            priority_countries_img_url = settings.MEDIA_URL + f"images/{filename}"
+            filename_priority_countries = f"frequency_priority_countries_{filename_suffix}.png"
+            temp_priority_countries_path = f"/tmp/{filename_priority_countries}"
+            plt_priority_countries.savefig(temp_priority_countries_path) # Save locally first
+            uploaded_priority_countries = upload(temp_priority_countries_path)
+            priority_countries_img_url = uploaded_priority_countries['secure_url']
+            os.remove(temp_priority_countries_path)
+
 
             # Plot top publiction countries
             plt_countries = analyzer.plot_top_10_countries()
-            filename = f"top_countries_{filename_suffix}.png"
-            countries_img_path  = os.path.join(base_path, filename)
-            plt_countries.savefig(countries_img_path)
-            countries_img_url = settings.MEDIA_URL + f"images/{filename}" #it might need to be renamed to top_countries
+            filename_countries = f"top_countries_{filename_suffix}.png"
+            temp_countries_path = f"/tmp/{filename_countries}"
+            plt_countries.savefig(temp_countries_path) # Save locally first
+            uploaded_countries = upload(temp_countries_path)
+            countries_img_url = uploaded_countries['secure_url']
+            os.remove(temp_countries_path)
  
             # Origin and Destination Countries
             plt_origin_destcountr = analyzer.analyze_patent_flow(top_n=10)
-            filename = f"origin_destcountr_{filename_suffix}.png"
-            origin_destcountr_img_path  = os.path.join(base_path, filename)
-            plt_origin_destcountr.savefig(origin_destcountr_img_path)
-            origin_destcountr_img_url = settings.MEDIA_URL + f"images/{filename}" #it might need to be renamed to top_countries
+            filename_origin_destcountr = f"origin_destcountr_{filename_suffix}.png"
+            temp_origin_destcountr_path = f"/tmp/{filename_origin_destcountr}"
+            plt_origin_destcountr.savefig(temp_origin_destcountr_path) # Save locally first
+            uploaded_origin_destcountr = upload(temp_origin_destcountr_path)
+            origin_destcountr_img_url = uploaded_origin_destcountr['secure_url']
+            os.remove(temp_origin_destcountr_path)
 
             extra_context = {
                     'analysis1': "<p>Analysis complete. See the graphs below.</p>",
@@ -120,45 +129,64 @@ class AnalizarDatosView(FormView):
             
             # Plot wordcloud nouns
             plt_wcld_nouns = analyzer.generate_wordclouds_by_pos(pospeech = 'Nouns')
-            filename = f"wcld_nouns_{filename_suffix}.png"
-            wcld_nouns_img_path  = os.path.join(base_path, filename)
-            plt_wcld_nouns.savefig(wcld_nouns_img_path)
-            wcld_nouns_img_url = settings.MEDIA_URL + f"images/{filename}"
+            filename_wcld_nouns = f"wcld_nouns_{filename_suffix}.png"
+            temp_wcld_nouns_path = f"/tmp/{filename_wcld_nouns}"
+            plt_wcld_nouns.savefig(temp_wcld_nouns_path) # Save locally first
+            uploaded_wcld_nouns = upload(temp_wcld_nouns_path)
+            wcld_nouns_img_url = uploaded_wcld_nouns['secure_url']
+            os.remove(temp_wcld_nouns_path)
 
             # Plot wordcloud verbs
             plt_wcld_verbs = analyzer.generate_wordclouds_by_pos(pospeech = 'Verbs')
-            filename = f"wcld_verbs_{filename_suffix}.png"
-            wcld_verbs_img_path  = os.path.join(base_path, filename)
-            plt_wcld_verbs.savefig(wcld_verbs_img_path)
-            wcld_verbs_img_url = settings.MEDIA_URL + f"images/{filename}"
+            filename_wcld_verbs = f"wcld_verbs_{filename_suffix}.png"
+            temp_wcld_verbs_path = f"/tmp/{filename_wcld_verbs}"
+            plt_wcld_verbs.savefig(temp_wcld_verbs_path) # Save locally first
+            uploaded_wcld_verbs = upload(temp_wcld_verbs_path)
+            wcld_verbs_img_url = uploaded_wcld_verbs['secure_url']
+            os.remove(temp_wcld_verbs_path)
+
 
             # Plot wordcloud adjectives
             plt_wcld_adjectives = analyzer.generate_wordclouds_by_pos(pospeech = 'Adjectives')
-            filename = f"wcld_adjectives_{filename_suffix}.png"
-            wcld_adjectives_img_path  = os.path.join(base_path, filename)
-            plt_wcld_adjectives.savefig(wcld_adjectives_img_path)
-            wcld_adjectives_img_url = settings.MEDIA_URL + f"images/{filename}"     
+            filename_wcld_adjectives = f"wcld_adjectives_{filename_suffix}.png"
+
+            temp_wcld_adjectives_path = f"/tmp/{filename_wcld_adjectives}"
+            plt_wcld_adjectives.savefig(temp_wcld_adjectives_path) # Save locally first
+            uploaded_wcld_adjectives = upload(temp_wcld_adjectives_path)
+            wcld_adjectives_img_url = uploaded_wcld_adjectives['secure_url']
+            os.remove(temp_wcld_adjectives_path)
+    
     
             # Plot top IPCs
             plt_ipcs = analyzer.plot_top_ipcs()
-            filename = f"top_ipcs_{filename_suffix}.png"
-            ipcs_img_path  = os.path.join(base_path, filename)
-            plt_ipcs.savefig(ipcs_img_path)
-            ipcs_img_url = settings.MEDIA_URL + f"images/{filename}" 
+            filename_ipcs = f"top_ipcs_{filename_suffix}.png"
+
+            temp_ipcs_path = f"/tmp/{filename_ipcs}"
+            plt_ipcs.savefig(temp_ipcs_path) # Save locally first
+            uploaded_ipcs = upload(temp_ipcs_path)
+            ipcs_img_url = uploaded_ipcs['secure_url']
+            os.remove(temp_ipcs_path)
 
             # Show the boring table with IPC Groups and their definitions
             plt_defs = analyzer.get_top_ipcs_with_titles()
-            filename = f"top_ipcs_defs_{filename_suffix}.png"
-            defs_img_path  = os.path.join(base_path, filename)
-            plt_defs.savefig(ipcs_img_path)
-            defs_img_url = settings.MEDIA_URL + f"images/{filename}" 
+            filename_defs = f"top_ipcs_defs_{filename_suffix}.png"
+
+            temp_defs_path = f"/tmp/{filename_defs}"
+            plt_defs.savefig(temp_defs_path) # Save locally first
+            defs_countries = upload(temp_defs_path)
+            uploaded_defs = upload(temp_defs_path)
+            defs_img_url = uploaded_defs['secure_url']
+            os.remove(temp_defs_path)
+
 
             # Plot parallel coordinates
             plt_parallel = analyzer.plot_parallel_coordinates(top_n=5, year_range=range(start_year, end_year + 1))
-            filename = f"parallel_coordinates_{filename_suffix}.png"
-            parallel_img_path  = os.path.join(base_path, filename)
-            plt_parallel.savefig(parallel_img_path)
-            parallel_img_url = settings.MEDIA_URL + f"images/{filename}" 
+            filename_parallel = f"parallel_coordinates_{filename_suffix}.png"
+            temp_parallel_path = f"/tmp/{filename_parallel}"
+            plt_parallel.savefig(temp_parallel_path) # Save locally first
+            uploaded_parallel = upload(temp_parallel_path)
+            parallel_img_url = uploaded_parallel['secure_url']
+            os.remove(temp_parallel_path)
             
 
             extra_context = {
@@ -214,10 +242,12 @@ class ApplicInventNetworkView(FormView):
 
             # Instead of getting base64, save the figure directly
             plt_network = analyzer.generate_network_image(top_n=20)  # Assuming this returns a matplotlib figure
-            filename = f"network_{filename_suffix}.png"
-            network_img_path  = os.path.join(base_path, filename)
-            plt_network.savefig(network_img_path)
-            network_img_url = settings.MEDIA_URL + f"images/{filename}" 
+            filename_network = f"network_{filename_suffix}.png"
+            temp_network_path = f"/tmp/{filename_network}"
+            plt_network.savefig(temp_network_path) # Save locally first
+            uploaded_network = upload(temp_network_path)
+            network_img_url = uploaded_network['secure_url']
+            os.remove(temp_network_path)
             
             extra_context = {
                 'analysis1': "<p>Analysis complete. See the graphs below.</p>",

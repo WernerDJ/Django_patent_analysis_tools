@@ -25,7 +25,8 @@ xlrd
 numpy
 datetime
 
-
+fuzzywuzzy
+seaborn 
 
 # Heroku buildpack requirement
 dj-database-url

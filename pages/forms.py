@@ -19,5 +19,22 @@ class ExcelUploadForm(forms.Form):
         max_value=2030,
         label="End Year"
     )
+
+class ReducedExcelUploadForm(forms.Form):
+    excel_file = forms.FileField(label="Upload Excel File")
+    start_year = forms.IntegerField(
+        initial=2005, 
+        min_value=2005, 
+        max_value=2030,
+        label="Start Year"
+    )
+    end_year = forms.IntegerField(
+        initial=2026, 
+        min_value=2005, 
+        max_value=2030,
+        label="End Year"
+    )
+
 class SimpleExcelUploadForm(forms.Form):
     excel_file = forms.FileField(label="Upload Excel File")
+

@@ -488,6 +488,195 @@ class Patent_Analysis:
         ax.axvline(x=0.27, ymin=0, ymax=1, color='black', linewidth=1)
         return plt
 
+
+    def get_top_non_inventor_applicants(self, top_n=20):
+        """
+        Retrieves the most frequent applicants that are not also inventors.
+        
+        This function:
+        1. Extracts applicants from the 'Applicants' column (separated by semicolons)
+        2. Filters out applicants with non-Latin characters
+        3. Compares them with inventors from the 'Inventors' column
+        4. Creates a new dataframe for applicants that are not inventors with their IPC codes
+        5. Groups similar applicant names (75% similarity) and counts them
+        6. Returns a bar plot of the top N most frequent non-inventor applicants
+        
+        Args:
+            top_n: Number of top applicants to display (default: 20)
+            
+        Returns:
+            A matplotlib figure showing top non-inventor applicants
+        """
+        from fuzzywuzzy import fuzz
+        from collections import defaultdict
+    
+        # Create a list to hold all non-inventor applicants and their IPC codes
+        non_inventor_applicants_data = []
+        
+        # Regular expression to check if string contains only Latin characters, numbers, and common punctuation
+        latin_char_pattern = re.compile(r'^[A-Za-z0-9\s\.,;:\-\'\"\(\)&]+$')
+        
+        # Process each row in the filtered data
+        for _, row in self.filtered_data.iterrows():
+            # Get applicants and inventors
+            applicants = str(row['Applicants']) if not pd.isna(row['Applicants']) else ""
+            inventors = str(row['Inventors']) if not pd.isna(row['Inventors']) else ""
+            ipc_codes = str(row['I P C']) if not pd.isna(row['I P C']) else ""
+            
+            # Split by semicolons and strip whitespace
+            applicant_list = [app.strip() for app in applicants.split(';') if app.strip()]
+            inventor_list = [inv.strip() for inv in inventors.split(';') if inv.strip()]
+            
+            # Filter out applicants with non-Latin characters
+            applicant_list = [app for app in applicant_list if latin_char_pattern.match(app)]
+            
+            # Find applicants who are not inventors
+            for applicant in applicant_list:
+                # Check if this applicant name appears in the inventors list
+                is_inventor = False
+                for inventor in inventor_list:
+                    # Use fuzzy matching to check if applicant name matches any inventor name
+                    similarity = fuzz.ratio(applicant.lower(), inventor.lower())
+                    if similarity > 85:  # High threshold for considering them the same
+                        is_inventor = True
+                        break
+                
+                # If applicant is not an inventor, add to our data
+                if not is_inventor:
+                    non_inventor_applicants_data.append({
+                        'Applicant': applicant,
+                        'IPC': ipc_codes
+                    })
+        
+        # Create a dataframe from the collected data
+        self.non_inventor_applicants_df = pd.DataFrame(non_inventor_applicants_data)
+        
+        # Now group similar applicant names using fuzzy matching
+        # First, get unique applicant names
+        unique_applicants = list(self.non_inventor_applicants_df['Applicant'].unique())
+        
+        # Create a mapping dictionary for grouping similar names
+        name_groups = defaultdict(list)
+        grouped_names = set()  # Track which names have been grouped
+        
+        # Create groups of similar names
+        for i, name1 in enumerate(unique_applicants):
+            if name1 in grouped_names:
+                continue  # Skip if already in a group
+                
+            # Create a new group with this name
+            group_key = name1
+            name_groups[group_key].append(name1)
+            grouped_names.add(name1)
+            
+            # Find similar names to add to this group
+            for name2 in unique_applicants[i+1:]:
+                if name2 in grouped_names:
+                    continue  # Skip if already in a group
+                    
+                # Calculate similarity
+                similarity = fuzz.ratio(name1.lower(), name2.lower())
+                if similarity >= 75:  # 75% similarity threshold
+                    name_groups[group_key].append(name2)
+                    grouped_names.add(name2)
+        
+        # Count occurrences of each applicant group
+        group_counts = {}
+        for group_name, similar_names in name_groups.items():
+            # Count the total occurrences of all names in this group
+            count = sum(len(self.non_inventor_applicants_df[self.non_inventor_applicants_df['Applicant'] == name]) 
+                        for name in similar_names)
+            group_counts[group_name] = count
+        
+        # Get the top N applicant groups by count
+        self.top_applicants = sorted(group_counts.items(), key=lambda x: x[1], reverse=True)[:top_n]
+        # Extract names and counts for plotting
+        names = [name for name, _ in self.top_applicants]
+        counts = [count for _, count in self.top_applicants]
+        
+        # Create the bar plot
+        plt.figure(figsize=(12, 8))
+        bars = plt.barh(np.arange(len(names))[::-1], counts, color='skyblue')
+        
+        # Add count labels to the bars
+        for i, bar in enumerate(bars):
+            plt.text(bar.get_width() + 0.3, bar.get_y() + bar.get_height()/2, 
+                     str(counts[i]), va='center')
+        
+        # Truncate long company names for display
+        display_names = []
+        for name in names:
+            if len(name) > 40:
+                display_names.append(name[:37] + '...')
+            else:
+                display_names.append(name)
+        
+        # Set labels and title
+        plt.yticks(np.arange(len(display_names)), display_names)
+        plt.xlabel('Number of Applications')
+        plt.title(f'Top {top_n} Most Frequent Non-Inventor Applicants')
+        plt.grid(axis='x', linestyle='--', alpha=0.7)
+        plt.tight_layout()
+        
+        # Return the figure
+        return plt
+     
+    def plot_applicant_ipc_bubble_chart(self, top_n=20):
+        """
+        Plots a bubble chart of the top applicants and their IPC groups.
+    
+        Args:
+            top_n: Number of top applicants to display (default: 20)
+        """
+        # Get the top applicants
+        #self.get_top_non_inventor_applicants(top_n=top_n)
+        top_applicants = self.top_applicants
+    
+        # Create a dictionary to store IPC counts for each applicant
+        applicant_ipc_counts = {applicant: Counter() for applicant, _ in top_applicants}
+    
+        # Count IPC groups for each applicant
+        for _, row in self.filtered_data.iterrows():
+            applicants = str(row['Applicants']) if not pd.isna(row['Applicants']) else ""
+            ipc_codes = str(row['I P C']) if not pd.isna(row['I P C']) else ""
+    
+            # Split by semicolons and strip whitespace
+            applicant_list = [app.strip() for app in applicants.split(';') if app.strip()]
+            ipc_list = [ipc.strip()[:4] for ipc in ipc_codes.split(';') if ipc.strip()]
+    
+            for applicant in applicant_list:
+                if applicant in applicant_ipc_counts:
+                    applicant_ipc_counts[applicant].update(ipc_list)
+    
+        # Get the top 20 IPC groups
+        all_ipcs = []
+        for ipcs in self.filtered_data['I P C'].dropna():
+            codes = re.findall(r'\b[A-Z]\d{2}[A-Z]?', str(ipcs))
+            all_ipcs.extend([code[:4] for code in codes])
+        top_ipcs = pd.Series(all_ipcs).value_counts().head(20).index.tolist()
+    
+        # Create the bubble chart
+        plt.figure(figsize=(14, 10))
+        for applicant, ipc_counts in applicant_ipc_counts.items():
+            for ipc, count in ipc_counts.items():
+                if ipc in top_ipcs:
+                    size = (count + 1) * 50  
+                    max_count = max(ipc_counts.values())
+                    if max_count > 1:
+                        color = plt.cm.coolwarm((count - 1) / (max_count - 1))
+                    else:
+                        color = 'blue'  # Default color if max_count is 1
+                    plt.scatter(ipc, applicant, s=size, color=color, alpha=0.8, edgecolors='w')
+    
+        plt.xlabel('IPC Groups')
+        plt.ylabel('Applicants')
+        plt.title('Bubble Chart of Top Applicants and IPC Groups')
+        plt.grid(True)
+        plt.tight_layout()
+        return plt
+
+
+
     def generate_wordclouds_by_pos(self, text_column='Abstract', pospeech='Nouns'):
         stopwords = self.load_stopwords()  # Load tstopwords
         text_data = self.filtered_data[text_column].dropna().astype(str).str.cat(sep=' ')

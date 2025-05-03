@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.shortcuts import render
 from django.views.generic import TemplateView, FormView
-from .forms import ExcelUploadForm, SimpleExcelUploadForm
+from .forms import ExcelUploadForm, SimpleExcelUploadForm, ReducedExcelUploadForm
 import os
 from .analytic_functions import Patent_Analysis, Patent_Network
 import uuid
@@ -156,7 +156,50 @@ class AnalizarDatosView(FormView):
             wcld_adjectives_img_url = uploaded_wcld_adjectives['secure_url']
             os.remove(temp_wcld_adjectives_path)
     
+            extra_context = {
+                'analysis1': "<p>Analysis complete. See the graphs below.</p>",
+                'wcld_nouns_img':wcld_nouns_img_url,
+                'wcld_verbs_img':wcld_verbs_img_url,
+                'wcld_adjectives_img':wcld_adjectives_img_url,
+                } 
+            
+
+        except Exception as e:
+            extra_context = {'error': f"An error occurred during file processing: {e}"}
+
+        context = self.get_context_data(form=form, **extra_context)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+
+class IPC_ApplicantsView(FormView):
+    template_name = "pages/IPC_Applicants.html"
+    form_class = ReducedExcelUploadForm
     
+    def form_valid(self, form):
+        excel_file = form.cleaned_data.get('excel_file')
+        ipc_list = None
+        start_year = form.cleaned_data.get('start_year')
+        end_year = form.cleaned_data.get('end_year')
+        time_range = [start_year, end_year]
+        print(f"Excel file received: {excel_file}")
+        
+        
+        try:
+            print("Initializing PatentNetwork...")
+            analyzer = Patent_Analysis(excel_file)
+
+            # Filter the data
+            analyzer.filter_by_ipc_and_year(ipc_list, time_range)
+
+            # Define image save path
+            base_path = os.path.join(settings.MEDIA_ROOT, "images")
+            os.makedirs(base_path, exist_ok=True)
+
+   
             # Plot top IPCs
             plt_ipcs = analyzer.plot_top_ipcs()
             filename_ipcs = f"top_ipcs_{filename_suffix}.png"
@@ -178,7 +221,6 @@ class AnalizarDatosView(FormView):
             defs_img_url = uploaded_defs['secure_url']
             os.remove(temp_defs_path)
 
-
             # Plot parallel coordinates
             plt_parallel = analyzer.plot_parallel_coordinates(top_n=5, year_range=range(start_year, end_year + 1))
             filename_parallel = f"parallel_coordinates_{filename_suffix}.png"
@@ -187,6 +229,24 @@ class AnalizarDatosView(FormView):
             uploaded_parallel = upload(temp_parallel_path)
             parallel_img_url = uploaded_parallel['secure_url']
             os.remove(temp_parallel_path)
+
+            # Plot top Applicants
+            plt_topAppl = analyzer.get_top_non_inventor_applicants(top_n=20)
+            filename_topAppl = f"Top_Applicants{filename_suffix}.png"
+            temp_topAppl_path = f"/tmp/{filename_topAppl}"
+            plt_topAppl.savefig(temp_topAppl_path) # Save locally first
+            uploaded_topAppl = upload(temp_topAppl_path)
+            topAppl_img_url = uploaded_topAppl['secure_url']
+            os.remove(temp_topAppl_path)
+
+            # Applicants vs IPC bubble plot
+            plt_Appl_IPC = analyzer.plot_applicant_ipc_bubble_chart(top_n=20)
+            filename_Appl_IPC = f"Appl_IPC{filename_suffix}.png"
+            temp_Appl_IPC_path = f"/tmp/{filename_Appl_IPC}"
+            plt_Appl_IPC.savefig(temp_Appl_IPC_path) # Save locally first
+            uploaded_Appl_IPC = upload(temp_Appl_IPC_path)
+            Appl_IPC_img_url = uploaded_Appl_IPC['secure_url']
+            os.remove(temp_Appl_IPC_path)
             
 
             extra_context = {
@@ -194,9 +254,8 @@ class AnalizarDatosView(FormView):
                 'top_ipcs_img': ipcs_img_url,
                 'top_ipcs_defs_img':defs_img_url,
                 'parallel_img': parallel_img_url, 
-                'wcld_nouns_img':wcld_nouns_img_url,
-                'wcld_verbs_img':wcld_verbs_img_url,
-                'wcld_adjectives_img':wcld_adjectives_img_url,
+                'topAppl_img': topAppl_img_url,
+                'Appl_IPC_img': Appl_IPC_img_url
                 } 
             
 
@@ -209,6 +268,8 @@ class AnalizarDatosView(FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
+
+
 
 class ApplicInventNetworkView(FormView):
     template_name = "pages/network.html"

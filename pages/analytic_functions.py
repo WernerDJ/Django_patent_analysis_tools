@@ -21,6 +21,7 @@ import networkx as nx
 import io
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+from fuzzywuzzy import fuzz
 
 #Import English stopwords from the nltk repository downloaded to the hard drive
 nltk.data.path.append("/usr/share/nltk_data")
@@ -507,7 +508,7 @@ class Patent_Analysis:
         Returns:
             A matplotlib figure showing top non-inventor applicants
         """
-        from fuzzywuzzy import fuzz
+        
         from collections import defaultdict
     
         # Create a list to hold all non-inventor applicants and their IPC codes
@@ -590,28 +591,26 @@ class Patent_Analysis:
         
         # Get the top N applicant groups by count
         self.top_applicants = sorted(group_counts.items(), key=lambda x: x[1], reverse=True)[:top_n]
-        # Extract names and counts for plotting
-        names = [name for name, _ in self.top_applicants]
-        counts = [count for _, count in self.top_applicants]
+        # Split names and counts
+        names, counts = zip(*self.top_applicants)
         
-        # Create the bar plot
+        # Reverse for horizontal bar chart (most frequent at top)
+        names = names[::-1]
+        counts = counts[::-1]
+        
+        # Plot
         plt.figure(figsize=(12, 8))
-        bars = plt.barh(np.arange(len(names))[::-1], counts, color='skyblue')
+        bars = plt.barh(np.arange(len(names)), counts, color='skyblue')
         
-        # Add count labels to the bars
+        # Add count labels
         for i, bar in enumerate(bars):
             plt.text(bar.get_width() + 0.3, bar.get_y() + bar.get_height()/2, 
                      str(counts[i]), va='center')
         
-        # Truncate long company names for display
-        display_names = []
-        for name in names:
-            if len(name) > 40:
-                display_names.append(name[:37] + '...')
-            else:
-                display_names.append(name)
+        # Truncate long names for display (optional)
+        display_names = [name if len(name) <= 40 else name[:37] + '...' for name in names]
         
-        # Set labels and title
+        # Format plot
         plt.yticks(np.arange(len(display_names)), display_names)
         plt.xlabel('Number of Applications')
         plt.title(f'Top {top_n} Most Frequent Non-Inventor Applicants')
@@ -620,33 +619,106 @@ class Patent_Analysis:
         
         # Return the figure
         return plt
-     
+        
+
+    def plot_applicant_parallel_coordinates(self, top_n=10, year_range=None):
+        """Create parallel coordinates plot for top non-inventor applicants showing absolute publication counts by year."""
+        if year_range is None:
+            current_year = datetime.now().year
+            year_range = (current_year - 20, current_year)     
+            
+        # Get top applicants if not already calculated
+        if not hasattr(self, 'top_applicants'):
+            self.get_top_non_inventor_applicants(top_n=top_n)
+        
+        sorted_applicants = sorted(self.top_applicants, key=lambda x: x[1], reverse=True)[:top_n]
+        top_applicants = [name for name, _ in sorted_applicants]
+        
+        # Filter publication years
+        all_years = sorted(self.filtered_data['PubYear'].dropna().unique().astype(int))
+        
+        if year_range:
+            start_year, end_year = year_range
+            all_years = [year for year in all_years if start_year <= year <= end_year]
+            if not all_years:
+                raise ValueError(f"No data available in the specified year range: {year_range}")
+    
+        # Create dataframe to hold counts
+        applicant_yearly_counts = pd.DataFrame(index=top_applicants, columns=all_years, data=0)
+        
+        # Count publications per applicant and year
+        for applicant in top_applicants:
+            applicant_patents = self.filtered_data[
+                self.filtered_data['Applicants'].str.contains(applicant, case=False, na=False)
+            ]
+            # Apply year range filter
+            if year_range:
+                applicant_patents = applicant_patents[
+                    applicant_patents['PubYear'].between(start_year, end_year)
+                ]
+            
+            yearly_counts = applicant_patents['PubYear'].value_counts().astype(int)
+            for year, count in yearly_counts.items():
+                if year in applicant_yearly_counts.columns:
+                    applicant_yearly_counts.at[applicant, year] = count
+        
+        # Plot
+        fig, host = plt.subplots(figsize=(15, 10))
+        colors = plt.cm.tab10.colors
+        
+        for i, applicant in enumerate(top_applicants):
+            data = applicant_yearly_counts.loc[applicant].values
+            x = np.linspace(0, len(all_years) - 1, len(all_years))
+            
+            verts = [(x[0], data[0])]
+            codes = [Path.MOVETO]
+            for j in range(1, len(x)):
+                x0, y0 = x[j - 1], data[j - 1]
+                x1, y1 = x[j], data[j]
+                ctrl1 = (x0 + (x1 - x0) / 3, y0)
+                ctrl2 = (x0 + 2 * (x1 - x0) / 3, y1)
+                verts.extend([ctrl1, ctrl2, (x1, y1)])
+                codes.extend([Path.CURVE4, Path.CURVE4, Path.CURVE4])
+            
+            path = Path(verts, codes)
+            patch = patches.PathPatch(path, facecolor='none', lw=3, edgecolor=colors[i % len(colors)], alpha=0.8)
+            host.add_patch(patch)
+
+
+
     def plot_applicant_ipc_bubble_chart(self, top_n=20):
         """
-        Plots a bubble chart of the top applicants and their IPC groups.
+        Plots a bubble chart of the top applicants and their IPC groups using fuzzy name matching.
     
         Args:
             top_n: Number of top applicants to display (default: 20)
         """
         # Get the top applicants
-        #self.get_top_non_inventor_applicants(top_n=top_n)
         top_applicants = self.top_applicants
+        top_names = [name for name, _ in top_applicants]
     
         # Create a dictionary to store IPC counts for each applicant
-        applicant_ipc_counts = {applicant: Counter() for applicant, _ in top_applicants}
+        applicant_ipc_counts = {applicant: Counter() for applicant in top_names}
     
-        # Count IPC groups for each applicant
+        # Count IPC groups for each applicant (with fuzzy matching)
         for _, row in self.filtered_data.iterrows():
             applicants = str(row['Applicants']) if not pd.isna(row['Applicants']) else ""
             ipc_codes = str(row['I P C']) if not pd.isna(row['I P C']) else ""
     
-            # Split by semicolons and strip whitespace
             applicant_list = [app.strip() for app in applicants.split(';') if app.strip()]
             ipc_list = [ipc.strip()[:4] for ipc in ipc_codes.split(';') if ipc.strip()]
     
             for applicant in applicant_list:
-                if applicant in applicant_ipc_counts:
-                    applicant_ipc_counts[applicant].update(ipc_list)
+                matched_applicant = None
+                max_score = 0
+                for known_applicant in top_names:
+                    score = fuzz.token_sort_ratio(applicant, known_applicant)
+                    if score > 75 and score > max_score:
+                        matched_applicant = known_applicant
+                        max_score = score
+    
+                if matched_applicant:
+                    applicant_ipc_counts[matched_applicant].update(ipc_list)
     
         # Get the top 20 IPC groups
         all_ipcs = []
@@ -665,15 +737,17 @@ class Patent_Analysis:
                     if max_count > 1:
                         color = plt.cm.coolwarm((count - 1) / (max_count - 1))
                     else:
-                        color = 'blue'  # Default color if max_count is 1
+                        color = 'blue'
                     plt.scatter(ipc, applicant, s=size, color=color, alpha=0.8, edgecolors='w')
     
         plt.xlabel('IPC Groups')
         plt.ylabel('Applicants')
-        plt.title('Bubble Chart of Top Applicants and IPC Groups')
+        plt.title('Bubble Chart of Top Applicants and IPC Groups (bubble color is warmer and size bigger when higher count)')
         plt.grid(True)
+        plt.gca().invert_yaxis()
         plt.tight_layout()
         return plt
+
 
 
 
@@ -753,7 +827,102 @@ class Patent_Analysis:
         plt.tight_layout()
         return plt
 
-
+    def plot_applicant_parallel_coordinates(self, top_n=10, year_range=None):
+        """Create parallel coordinates plot for top non-inventor applicants showing normalized publication counts by year."""
+        if year_range is None:
+            current_year = datetime.now().year
+            year_range = (current_year - 20, current_year)
+    
+        start_year, end_year = year_range
+    
+        # Ensure 'PubYear' is in integer format
+        self.filtered_data['PubYear'] = pd.to_numeric(self.filtered_data['PubYear'], errors='coerce').dropna().astype(int)
+    
+        # Get top applicants if not already calculated
+        if not hasattr(self, 'top_applicants'):
+            self.get_top_non_inventor_applicants(top_n=top_n)
+    
+        # Sort applicants by count and take top_n
+        sorted_applicants = sorted(self.top_applicants, key=lambda x: x[1], reverse=True)[:top_n]
+        top_applicants = [name for name, _ in sorted_applicants]
+    
+        # Filter years
+        all_years = sorted([year for year in self.filtered_data['PubYear'].unique() if start_year <= year <= end_year])
+        if not all_years:
+            raise ValueError("No valid publication years in the selected range")
+    
+        # Initialize dataframe with zeros
+        applicant_yearly_counts = pd.DataFrame(index=top_applicants, columns=all_years, data=0)
+    
+        # Count publications for each applicant by year using fuzzy match (≥75%)
+        for applicant in top_applicants:
+            matching_rows = self.filtered_data[
+                self.filtered_data['Applicants'].fillna('').apply(
+                    lambda x: fuzz.partial_ratio(x.lower(), applicant.lower()) >= 75
+                )
+            ]
+            yearly_counts = matching_rows['PubYear'].value_counts().astype(int)
+            for year, count in yearly_counts.items():
+                if year in applicant_yearly_counts.columns:
+                    applicant_yearly_counts.at[applicant, year] = count
+    
+        # Normalize counts per applicant between 0 and 1
+        normalized_counts = applicant_yearly_counts.div(applicant_yearly_counts.max(axis=1), axis=0).fillna(0)
+    
+        # Plotting
+        fig, host = plt.subplots(figsize=(15, 10))
+        colors = plt.cm.tab10.colors
+    
+        for i, applicant in enumerate(top_applicants):
+            data = normalized_counts.loc[applicant].values.astype(float)
+            x = np.linspace(0, len(all_years) - 1, len(all_years))
+    
+            # Bezier curve
+            verts = [(x[0], data[0])]
+            codes = [Path.MOVETO]
+            for j in range(1, len(x)):
+                x0, y0 = x[j - 1], data[j - 1]
+                x1, y1 = x[j], data[j]
+                ctrl1 = (x0 + (x1 - x0) / 3, y0)
+                ctrl2 = (x0 + 2 * (x1 - x0) / 3, y1)
+                verts.extend([ctrl1, ctrl2, (x1, y1)])
+                codes.extend([Path.CURVE4, Path.CURVE4, Path.CURVE4])
+    
+            path = Path(verts, codes)
+            patch = patches.PathPatch(path, facecolor='none', lw=3, edgecolor=colors[i % len(colors)], alpha=0.8)
+            host.add_patch(patch)
+    
+        # Axis and labels
+        host.set_xlim(0, len(all_years) - 1)
+        host.set_ylim(0, 1.05)
+        host.set_xticks(range(len(all_years)))
+        host.set_xticklabels(all_years, fontsize=10, rotation=45)
+        host.set_title(f'Top {top_n} Non-Inventor Applicants by Normalized Publication Count', fontsize=16, pad=20)
+        host.set_xlabel('Publication Year', fontsize=12)
+        host.set_ylabel('Normalized Publication Count (0–1)', fontsize=12)
+        host.grid(True, linestyle='--', alpha=0.6)
+    
+        # Legend
+        plt.subplots_adjust(right=0.7)
+        legend_entries = []
+        for i, (applicant, count) in enumerate(sorted_applicants):
+            display_name = applicant if len(applicant) <= 30 else applicant[:27] + '...'
+            legend_entries.append(f"{display_name} (Total: {count})")
+    
+        legend_patches = [
+            patches.Patch(color=colors[i % len(colors)], label=legend_entries[i])
+            for i in range(len(legend_entries))
+        ]
+    
+        host.legend(handles=legend_patches,
+                    title='Applicants with Total Publications',
+                    bbox_to_anchor=(1.05, 1),
+                    loc='upper left',
+                    borderaxespad=0.,
+                    fontsize=10)
+    
+        plt.tight_layout()
+        return plt
 
 
 class Patent_Network:

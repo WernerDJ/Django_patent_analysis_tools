@@ -43,6 +43,7 @@
     <br>
        <p style="font-size: 1.2em; line-height: 1.6;">
         This website is still under development, so for now, there is no need to log in to access advanced features. 
+        Please be patient with the generation time of the figures, currently, this web uses only basic cloud resources.
         In future versions, signing up will allow users to save their searches and prevent the automatic deletion of generated graphics.
         </p>
   </div>
@@ -81,19 +82,20 @@
 
     <!-- Word frequency stats Wordclouds -->
     <h3 style="margin-top: 2em; font-size: 1.5em;">Word frequency statistics: Wordclouds</h3>
+    <div style="display: flex; flex-wrap: wrap; gap: 1em;">
       <div style="flex: 1 1 48%;">
         <img src="{% static 'images/wcld_nouns_r.png' %}" alt="Noun Wordcloud"
-             style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+             style="width: 90%; border: 1px solid #ccc; border-radius: 6px;">
         <p style="text-align: center;">Wordcloud (Nouns)</p>
       </div>
       <div style="flex: 1 1 48%;">
         <img src="{% static 'images/wcld_verbs_r.png' %}" alt="Verb Wordcloud"
-             style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+             style="width: 90%; border: 1px solid #ccc; border-radius: 6px;">
         <p style="text-align: center;">Wordcloud (Verbs)</p>
       </div>
       <div style="flex: 1 1 48%;">
         <img src="{% static 'images/wcld_adjectives_r.png' %}" alt="Adjective Wordcloud"
-             style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+             style="width: 70%; border: 1px solid #ccc; border-radius: 6px;">
         <p style="text-align: center;">Wordcloud (Adjectives)</p>
       </div>
     </div>
@@ -118,19 +120,26 @@
         <p style="text-align: center;">Top 20 Applicants</p>
       </div>
       <div style="flex: 1 1 48%;">
+    <div style="display: flex; flex-wrap: wrap; gap: 1em;">
+      <div style="flex: 1 1 48%;">
+        <img src="{% static 'images/Applicants_parallel_r.png' %}" alt="Top 5 Applicants timeline"
+             style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+        <p style="text-align: center;">Top 5 Applicants patent publication timeline</p>
+      </div>
         <img src="{% static 'images/TopAppl_IPC_r.png' %}" alt="Most frequent IPC groups by Applicant"
              style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
         <p style="text-align: center;">Most frequent IPC groups by Applicant</p>
       </div>
-
+    </div>
 
     <!-- Tech Transfer Landscape -->
-    <h3 style="margin-top: 2em; font-size: 1.5em;">Tech Transfer Landscape</h3>
+    <h3 style="margin-top: 2em; font-size: 1.5em;">Technology Transfer Landscape</h3>
     <div style="display: flex; flex-wrap: wrap; gap: 1em;">
       <div style="flex: 1 1 48%;">
-        <img src="{% static 'images/network_plot_r.png' %}" alt="Inventor Transfer Network"
+        <img src="{% static 'images/network_plot.png' %}" alt="Inventor Transfer Network"
              style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
-        <p style="text-align: center;">Inventor movement between applicants</p>
+        <p style="text-align: center;">Flow of Technological Know-How Through Shared Inventors</p>
+        <p style="text-align: center;">Applicants in the graph may have further connections out of this circle</p>
       </div>
     </div>
   </div>

@@ -247,6 +247,15 @@ class IPC_ApplicantsView(FormView):
             uploaded_Appl_IPC = upload(temp_Appl_IPC_path)
             Appl_IPC_img_url = uploaded_Appl_IPC['secure_url']
             os.remove(temp_Appl_IPC_path)
+
+            # Plot top 5 Applicants parallel coordinates
+            plt_ParalleltopAppl = analyzer.plot_applicant_parallel_coordinates(top_n=5, year_range=(start_year, end_year + 1))
+            filename_ParalleltopAppl = f"ParalleltopAppl{filename_suffix}.png"
+            temp_ParalleltopAppl_path = f"/tmp/{filename_ParalleltopAppl}"
+            plt_ParalleltopAppl.savefig(temp_ParalleltopAppl_path) # Save locally first
+            uploaded_ParalleltopAppl = upload(temp_ParalleltopAppl_path)
+            ParalleltopAppl_img_url = uploaded_ParalleltopAppl['secure_url']
+            os.remove(temp_ParalleltopAppl_path)
             
 
             extra_context = {
@@ -255,6 +264,7 @@ class IPC_ApplicantsView(FormView):
                 'top_ipcs_defs_img':defs_img_url,
                 'parallel_img': parallel_img_url, 
                 'topAppl_img': topAppl_img_url,
+                'ParalleltopApp_img':ParalleltopAppl_img_url,
                 'Appl_IPC_img': Appl_IPC_img_url
                 } 
             

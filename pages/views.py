@@ -222,7 +222,7 @@ class IPC_ApplicantsView(FormView):
             os.remove(temp_defs_path)
 
             # Plot parallel coordinates
-            plt_parallel = analyzer.plot_parallel_coordinates(top_n=5, year_range=range(start_year, end_year + 1))
+            plt_parallel = analyzer.plot_parallel_coordinates(top_n=5, year_range=(start_year, end_year + 1))
             filename_parallel = f"parallel_coordinates_{filename_suffix}.png"
             temp_parallel_path = f"/tmp/{filename_parallel}"
             plt_parallel.savefig(temp_parallel_path) # Save locally first

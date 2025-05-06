@@ -175,8 +175,8 @@ class AnalizarDatosView(FormView):
         return context
 
 
-class IPC_ApplicantsView(FormView):
-    template_name = "pages/IPC_Applicants.html"
+class IPCView(FormView):
+    template_name = "pages/IPC.html"
     form_class = ReducedExcelUploadForm
     
     def form_valid(self, form):
@@ -230,6 +230,47 @@ class IPC_ApplicantsView(FormView):
             parallel_img_url = uploaded_parallel['secure_url']
             os.remove(temp_parallel_path)
 
+            extra_context = {
+                'analysis1': "<p>Analysis complete. See the graphs below.</p>",
+                'top_ipcs_img': ipcs_img_url,
+                'top_ipcs_defs_img':defs_img_url,
+                'parallel_img': parallel_img_url, 
+                } 
+            
+
+        except Exception as e:
+            extra_context = {'error': f"An error occurred during file processing: {e}"}
+
+        context = self.get_context_data(form=form, **extra_context)
+        return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+class ApplicantsView(FormView):
+    template_name = "pages/Applicants.html"
+    form_class = ReducedExcelUploadForm
+    
+    def form_valid(self, form):
+        excel_file = form.cleaned_data.get('excel_file')
+        ipc_list = None
+        start_year = form.cleaned_data.get('start_year')
+        end_year = form.cleaned_data.get('end_year')
+        time_range = [start_year, end_year]
+        print(f"Excel file received: {excel_file}")
+        
+        
+        try:
+            print("Initializing PatentNetwork...")
+            analyzer = Patent_Analysis(excel_file)
+
+            # Filter the data
+            analyzer.filter_by_ipc_and_year(ipc_list, time_range)
+
+            # Define image save path
+            base_path = os.path.join(settings.MEDIA_ROOT, "images")
+            os.makedirs(base_path, exist_ok=True)
             # Plot top Applicants
             plt_topAppl = analyzer.get_top_non_inventor_applicants(top_n=20)
             filename_topAppl = f"Top_Applicants{filename_suffix}.png"
@@ -256,19 +297,13 @@ class IPC_ApplicantsView(FormView):
             uploaded_ParalleltopAppl = upload(temp_ParalleltopAppl_path)
             ParalleltopAppl_img_url = uploaded_ParalleltopAppl['secure_url']
             os.remove(temp_ParalleltopAppl_path)
-            
 
             extra_context = {
                 'analysis1': "<p>Analysis complete. See the graphs below.</p>",
-                'top_ipcs_img': ipcs_img_url,
-                'top_ipcs_defs_img':defs_img_url,
-                'parallel_img': parallel_img_url, 
                 'topAppl_img': topAppl_img_url,
                 'ParalleltopApp_img':ParalleltopAppl_img_url,
                 'Appl_IPC_img': Appl_IPC_img_url
                 } 
-            
-
         except Exception as e:
             extra_context = {'error': f"An error occurred during file processing: {e}"}
 
@@ -278,8 +313,6 @@ class IPC_ApplicantsView(FormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         return context
-
-
 
 class ApplicInventNetworkView(FormView):
     template_name = "pages/network.html"

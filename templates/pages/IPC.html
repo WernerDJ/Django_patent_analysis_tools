@@ -27,24 +27,7 @@
     <img src="{{ parallel_img }}" alt="Parallel Coordinates Plot">
   {% endif %}
   <br>
-  <br>
-  {% if topAppl_img %}
-    <h2>Top 20 Applicants</h2>
-    <img src="{{ topAppl_img }}" alt="Top 20 Applicants">
-  {% endif %}
-  <br>
-  {% if ParalleltopApp_img %}
-    <h2>Top Applicants most number of fillings per year</h2>
-    <img src="{{ ParalleltopApp_img }}" alt="TTop Applicants most number of fillings per year" style="max-width: 100%; height: auto;">
-  {% endif %}
-  <br>
-  <br>
-  {% if Appl_IPC_img %}
-    <h2>Top Applicants most frequent IPC groups under which the patent documents are classified</h2>
-    <img src="{{ Appl_IPC_img }}" alt="Top Applicants most frequent IPC groups" style="max-width: 100%; height: auto;">
-  {% endif %}
-
-    {% if error %}
+  {% if error %}
     <p style="color: red;">{{ error }}</p>
   {% endif %}
 {% endblock content %}

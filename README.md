@@ -3,7 +3,6 @@
 The web page has been published at [https://patent-analysis-e57ee02125bf.herokuapp.com/](https://patent-analysis-e57ee02125bf.herokuapp.com/).
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 1.5em;">
-  <img src="static/images/dfp.jpg" alt="Patent Analysis Graphic" style="width: 50%; height: auto; margin-right: 1.5em; border: 1px solid #ccc; border-radius: 6px;">
   <div>
     <h1 style="font-size: 2.2em; margin-bottom: 0.5em;">Welcome to the Patent Analysis Platform</h1>
     <p style="font-size: 1.2em; line-height: 1.6;">

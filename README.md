@@ -1,3 +1,118 @@
+Yes, absolutely! You're right, the intention of a README is often to display the images directly within the markdown for better visual presentation.
+
+Here's the adapted markdown code that will display the images directly, assuming the image files (dfp.jpg, frequency_priority_years_r.png, etc.) are located in a directory named images at the root level of your GitHub repository:
+Markdown
+
+# Patent Analysis Platform
+
+This web page has been published as: [https://patent-analysis-e57ee02125bf.herokuapp.com/](https://patent-analysis-e57ee02125bf.herokuapp.com/)
+
+<div align="center">
+  <img src="images/dfp.jpg" alt="Patent Analysis Graphic" width="140" style="border: 1px solid #ccc; border-radius: 6px; margin-right: 1.5em; display: inline-block;">
+  <div>
+    <h1 style="font-size: 2.2em; margin-bottom: 0.5em;">Welcome to the Patent Analysis Platform</h1>
+    <p style="font-size: 1.2em; line-height: 1.6;">
+      This web platform provides data analysis tools tailored for intellectual property professionals.
+      You can generate insights and visualizations from international patent data in just a few steps.
+    </p>
+  </div>
+</div>
+
+## How to Use
+
+1.  Go to the [WIPO Patentscope](https://patentscope.wipo.int/search/en/search.jsf) search page.
+2.  Sign in to your WIPO account to enable downloading results.
+3.  Perform your patent search using any filters of interest (IPC codes, keywords, applicant, etc.).
+4.  Download the result list as an Excel file (XLS format).
+5.  Return here and upload the Excel file to generate custom visual analytics.
+
+### Watch this short tutorial:
+
+[![Tutorial Video](http://img.youtube.com/vi/0/0.jpg)](https://www.youtube.com/embed/eo31FWVMW_o?si=hmpVeIAeSrjxdBOC)
+
+This website is still under development, so for now, there is no need to log in to access advanced features. Please be patient with the generation time of the figures, currently, this web uses only basic cloud resources. The web page might become unresponsive if you load more than 3000 rows of data, so please narrow down your results. This problem can be solved by usign more computing power, but that will depend on the interest arisen by this site. In future versions, signing up will allow users to save their searches and prevent the automatic deletion of generated graphics.
+
+---
+
+## Gallery of Sample Visualizations
+
+Explore example graphics generated from international patent data.
+
+### Countries Statistics
+
+<div style="display: flex; flex-wrap: wrap; gap: 1em;">
+  <div style="flex: 1 1 48%;">
+    <img src="images/frequency_priority_years_r.png" alt="priority patent filling timeline" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Priority patent filling, yearly frequency</p>
+  </div>
+  <div style="flex: 1 1 48%;">
+    <img src="images/top_priority_countries_r.png" alt="Top Priority Countries" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Top Priority Filing Countries</p>
+  </div>
+  <div style="flex: 1 1 48%;">
+    <img src="images/top_countries_r.png" alt="Top Countries" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Top 10 countries by publication</p>
+  </div>
+  <div style="flex: 1 1 48%;">
+    <img src="images/origin_destcountr_r.png" alt="Origin-Destination Map" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Patent priority vs destination countries</p>
+  </div>
+</div>
+
+### Word frequency statistics: Wordclouds
+
+<div style="display: flex; flex-wrap: wrap; gap: 1em;">
+  <div style="flex: 1 1 48%;">
+    <img src="images/wcld_nouns_r.png" alt="Noun Wordcloud" style="width: 90%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Wordcloud (Nouns)</p>
+  </div>
+  <div style="flex: 1 1 48%;">
+    <img src="images/wcld_verbs_r.png" alt="Verb Wordcloud" style="width: 90%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Wordcloud (Verbs)</p>
+  </div>
+  <div style="flex: 1 1 48%;">
+    <img src="images/wcld_adjectives_r.png" alt="Adjective Wordcloud" style="width: 70%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Wordcloud (Adjectives)</p>
+  </div>
+</div>
+
+### IPC and Applicants Statistics
+
+<div style="display: flex; flex-wrap: wrap; gap: 1em;">
+  <div style="flex: 1 1 48%;">
+    <img src="images/top_ipcs_r.png" alt="Top IPC Codes" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Top 10 IPC groups</p>
+  </div>
+  <div style="flex: 1 1 48%;">
+    <img src="images/parallel_coordinates_r.png" alt="Parallel Coordinates" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Technology evolution over time</p>
+  </div>
+  <div style="flex: 1 1 48%;">
+    <img src="images/Top20Appl_r.png" alt="Top 20 Applicants" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Top 20 Applicants</p>
+  </div>
+  <div style="flex: 1 1 48%;">
+    <img src="images/Applicants_parallel_r.png" alt="Top 5 Applicants timeline" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Top 5 Applicants patent publication timeline</p>
+  </div>
+  <div style="flex: 1 1 48%;">
+    <img src="images/TopAppl_IPC_r.png" alt="Most frequent IPC groups by Applicant" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Most frequent IPC groups by Applicant</p>
+  </div>
+</div>
+
+### Technology Transfer Landscape
+
+<div style="display: flex; flex-wrap: wrap; gap: 1em;">
+  <div style="flex: 1 1 48%;">
+    <img src="images/network_plot.png" alt="Inventor Transfer Network" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <p style="text-align: center;">Flow of Technological Know-How Through Shared Inventors</p>
+    <p style="text-align: center;">Applicants in the graph may have further connections out of this circle</p>
+  </div>
+</div>
+
+
+
 # Patent Analysis Platform
 
 This web page has been published as: [https://patent-analysis-e57ee02125bf.herokuapp.com/](https://patent-analysis-e57ee02125bf.herokuapp.com/)

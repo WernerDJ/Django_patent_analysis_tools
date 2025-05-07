@@ -3,3 +3,4 @@ db.sqlite3
 www/
 ch4-bookstore/
 docker-compose-prod.yml
+docker-compose.yml

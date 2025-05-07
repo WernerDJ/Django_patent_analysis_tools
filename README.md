@@ -3,7 +3,7 @@
 The web page has been published at [https://patent-analysis-e57ee02125bf.herokuapp.com/](https://patent-analysis-e57ee02125bf.herokuapp.com/).
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 1.5em;">
-  <img src="static/images/dfp.jpg" alt="Patent Analysis Graphic" style="width: 140px; height: auto; margin-right: 1.5em; border: 1px solid #ccc; border-radius: 6px;">
+  <img src="static/images/dfp.jpg" alt="Patent Analysis Graphic" style="width: 50%; height: auto; margin-right: 1.5em; border: 1px solid #ccc; border-radius: 6px;">
   <div>
     <h1 style="font-size: 2.2em; margin-bottom: 0.5em;">Welcome to the Patent Analysis Platform</h1>
     <p style="font-size: 1.2em; line-height: 1.6;">
@@ -46,19 +46,19 @@ Explore example graphics generated from international patent data.
 
 <div style="display: flex; flex-wrap: wrap; gap: 1em;">
   <div style="flex: 1 1 48%;">
-    <img src="static/images/frequency_priority_years_r.png" alt="priority patent filling timeline" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <img src="static/images/frequency_priority_years_r.png" alt="priority patent filling timeline" style="width: 60%; height: auto; border: 1px solid #ccc; border-radius: 6px;">
     <p style="text-align: center;">Priority patent filling, yearly frequency</p>
   </div>
   <div style="flex: 1 1 48%;">
-    <img src="static/images/top_priority_countries_r.png" alt="Top Priority Countries" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <img src="static/images/top_priority_countries_r.png" alt="Top Priority Countries" style="width: 60%; height: auto; border: 1px solid #ccc; border-radius: 6px;">
     <p style="text-align: center;">Top Priority Filing Countries</p>
   </div>
   <div style="flex: 1 1 48%;">
-    <img src="static/images/top_countries_r.png" alt="Top Countries" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <img src="static/images/top_countries_r.png" alt="Top Countries" style="width: 60%; height: auto; border: 1px solid #ccc; border-radius: 6px;">
     <p style="text-align: center;">Top 10 countries by publication</p>
   </div>
   <div style="flex: 1 1 48%;">
-    <img src="static/images/origin_destcountr_r.png" alt="Origin-Destination Map" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <img src="static/images/origin_destcountr_r.png" alt="Origin-Destination Map" style="width: 60%; height: auto;  border: 1px solid #ccc; border-radius: 6px;">
     <p style="text-align: center;">Patent priority vs destination countries</p>
   </div>
 </div>
@@ -67,15 +67,15 @@ Explore example graphics generated from international patent data.
 
 <div style="display: flex; flex-wrap: wrap; gap: 1em;">
   <div style="flex: 1 1 48%;">
-    <img src="static/images/wcld_nouns_r.png" alt="Noun Wordcloud" style="width: 90%; border: 1px solid #ccc; border-radius: 6px;">
+    <img src="static/images/wcld_nouns_r.png" alt="Noun Wordcloud" style="width: 60%;  height: auto; border: 1px solid #ccc; border-radius: 6px;">
     <p style="text-align: center;">Wordcloud (Nouns)</p>
   </div>
   <div style="flex: 1 1 48%;">
-    <img src="static/images/wcld_verbs_r.png" alt="Verb Wordcloud" style="width: 90%; border: 1px solid #ccc; border-radius: 6px;">
+    <img src="static/images/wcld_verbs_r.png" alt="Verb Wordcloud" style="width: 60%; height: auto;  border: 1px solid #ccc; border-radius: 6px;">
     <p style="text-align: center;">Wordcloud (Verbs)</p>
   </div>
   <div style="flex: 1 1 48%;">
-    <img src="static/images/wcld_adjectives_r.png" alt="Adjective Wordcloud" style="width: 70%; border: 1px solid #ccc; border-radius: 6px;">
+    <img src="static/images/wcld_adjectives_r.png" alt="Adjective Wordcloud" style="width: 60%; height: auto;  border: 1px solid #ccc; border-radius: 6px;">
     <p style="text-align: center;">Wordcloud (Adjectives)</p>
   </div>
 </div>
@@ -84,25 +84,25 @@ Explore example graphics generated from international patent data.
 
 <div style="display: flex; flex-wrap: wrap; gap: 1em;">
   <div style="flex: 1 1 48%;">
-    <img src="static/images/top_ipcs_r.png" alt="Top IPC Codes" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <img src="static/images/top_ipcs_r.png" alt="Top IPC Codes" style="width: 60%; height: auto;  border: 1px solid #ccc; border-radius: 6px;">
     <p style="text-align: center;">Top 10 IPC groups</p>
   </div>
   <div style="flex: 1 1 48%;">
-    <img src="static/images/parallel_coordinates_r.png" alt="Parallel Coordinates" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+    <img src="static/images/parallel_coordinates_r.png" alt="Parallel Coordinates" style="width: 60%; height: auto;  border: 1px solid #ccc; border-radius: 6px;">
     <p style="text-align: center;">Technology evolution over time</p>
   </div>
   <div style="display: flex; flex-wrap: wrap; gap: 1em;">
     <div style="flex: 1 1 48%;">
-      <img src="static/images/Top20Appl_r.png" alt="Top 20 Applicants" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+      <img src="static/images/Top20Appl_r.png" alt="Top 20 Applicants" style="width: 60%; height: auto;  border: 1px solid #ccc; border-radius: 6px;">
       <p style="text-align: center;">Top 20 Applicants</p>
     </div>
     <div style="flex: 1 1 48%;">
       <div style="display: flex; flex-wrap: wrap; gap: 1em;">
         <div style="flex: 1 1 48%;">
-          <img src="static/images/Applicants_parallel_r.png" alt="Top 5 Applicants timeline" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+          <img src="static/images/Applicants_parallel_r.png" alt="Top 5 Applicants timeline" style="width: 60%; height: auto;  border: 1px solid #ccc; border-radius: 6px;">
           <p style="text-align: center;">Top 5 Applicants patent publication timeline</p>
         </div>
-        <img src="static/images/TopAppl_IPC_r.png" alt="Most frequent IPC groups by Applicant" style="width: 100%; border: 1px solid #ccc; border-radius: 6px;">
+        <img src="static/images/TopAppl_IPC_r.png" alt="Most frequent IPC groups by Applicant" style="width: 60%; height: auto;  border: 1px solid #ccc; border-radius: 6px;">
         <p style="text-align: center;">Most frequent IPC groups by Applicant</p>
       </div>
     </div>
@@ -118,63 +118,7 @@ Explore example graphics generated from international patent data.
     <p style="text-align: center;">Applicants in the graph may have further connections out of this circle</p>
   </div>
 </div>
-
-
-
-
-
-# Patent Analysis Platform
-
-This web page has been published as: [https://patent-analysis-e57ee02125bf.herokuapp.com/](https://patent-analysis-e57ee02125bf.herokuapp.com/)
-
-This web platform provides data analysis tools tailored for intellectual property professionals. You can generate insights and visualizations from international patent data in just a few steps.
-
-## How to Use
-
-1.  Go to the [WIPO Patentscope](https://patentscope.wipo.int/search/en/search.jsf) search page.
-2.  Sign in to your WIPO account to enable downloading results.
-3.  Perform your patent search using any filters of interest (IPC codes, keywords, applicant, etc.).
-4.  Download the result list as an Excel file (XLS format).
-5.  Return here and upload the Excel file to generate custom visual analytics.
-
-### Watch this short tutorial:
-
-[![Tutorial Video](http://img.youtube.com/vi/0/0.jpg)](https://www.youtube.com/embed/eo31FWVMW_o?si=hmpVeIAeSrjxdBOC)
-
-This website is still under development, so for now, there is no need to log in to access advanced features. Please be patient with the generation time of the figures, currently, this web uses only basic cloud resources. The web page might become unresponsive if you load more than 3000 rows of data, so please narrow down your results. This problem can be solved by usign more computing power, but that will depend on the interest arisen by this site. In future versions, signing up will allow users to save their searches and prevent the automatic deletion of generated graphics.
-
----
-
-## Gallery of Sample Visualizations
-
-Explore example graphics generated from international patent data.
-
-### Countries Statistics
-
-| Visualization                          | Description                            |
-| :------------------------------------- | :------------------------------------- |
-| ![Priority patent filling timeline](static/images/frequency_priority_years_r.png) | Priority patent filling, yearly frequency |
-| ![Top Priority Countries](static/images/top_priority_countries_r.png) | Top Priority Filing Countries         |
-| ![Top Countries](static/images/top_countries_r.png) | Top 10 countries by publication        |
-| ![Origin-Destination Map](static/images/origin_destcountr_r.png) | Patent priority vs destination countries |
-
-### Word frequency statistics: Wordclouds
-
-| Visualization        | Description          |
-| :------------------- | :------------------- |
-| ![Noun Wordcloud](static/images/wcld_nouns_r.png) | Wordcloud (Nouns)    |
-| ![Verb Wordcloud](static/images/wcld_verbs_r.png) | Wordcloud (Verbs)    |
-| ![Adjective Wordcloud](static/images/wcld_adjectives_r.png) | Wordcloud (Adjectives) |
-
-### IPC and Applicants Statistics
-
-| Visualization                         | Description                                |
-| :------------------------------------ | :----------------------------------------- |
-| ![Top IPC Codes](static/images/top_ipcs_r.png) | Top 10 IPC groups                          |
-| ![Parallel Coordinates](static/images/parallel_coordinates_r.png) | Technology evolution over time           |
-| ![Top 20 Applicants](static/images/Top20Appl_r.png) | Top 20 Applicants                          |
-| ![Top 5 Applicants timeline](static/images/Applicants_parallel_r.png) | Top 5 Applicants patent publication timeline |
-| ![Most frequent IPC groups by Applicant](static/images/TopAppl_IPC_r.png) | Most frequent IPC groups by Applicant      |
+ |
 
 ### Technology Transfer Landscape
 

@@ -4,7 +4,6 @@ The web page has been published at [https://patent-analysis-e57ee02125bf.herokua
 
 <div style="display: flex; align-items: flex-start; margin-bottom: 1.5em;">
   <div>
-    <h1 style="font-size: 2.2em; margin-bottom: 0.5em;">Welcome to the Patent Analysis Platform</h1>
     <p style="font-size: 1.2em; line-height: 1.6;">
       This web platform provides data analysis tools tailored for intellectual property professionals.
       You can generate insights and visualizations from international patent data in just a few steps.
